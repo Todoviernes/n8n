@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  traefik:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./compose/production/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./compose/production/traefik/acme:/etc/traefik/acme
+    environment:
+      - TRAEFIK_DOMAIN=${TRAEFIK_DOMAIN}
+      - TRAEFIK_EMAIL=${TRAEFIK_EMAIL}
+    restart: always
+
+  postgres:
+    image: postgres:latest
+    container_name: n8n_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: ${DB_TYPE}
+      DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST}
+      DB_POSTGRESDB_DATABASE: ${DB_POSTGRESDB_DATABASE}
+      DB_POSTGRESDB_USER: ${DB_POSTGRESDB_USER}
+      DB_POSTGRESDB_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE}
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    restart: always
+    depends_on:
+      - postgres
