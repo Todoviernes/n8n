@@ -4,7 +4,7 @@ services:
   traefik:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./compose/production/traefik/Dockerfile
     container_name: traefik
     ports:
       - "80:80"
