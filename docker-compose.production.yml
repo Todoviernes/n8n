@@ -11,8 +11,8 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./compose/production/traefik/traefik.yml:/etc/traefik/traefik.yml
-      - ./compose/production/traefik/acme:/etc/traefik/acme
+      - traefik-config:/etc/traefik
+      - traefik-acme:/etc/traefik/acme
     environment:
       - TRAEFIK_DOMAIN=${TRAEFIK_DOMAIN}
       - TRAEFIK_EMAIL=${TRAEFIK_EMAIL}
@@ -26,7 +26,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     restart: always
 
   n8n:
@@ -45,7 +45,13 @@ services:
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
     volumes:
-      - ./n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     restart: always
     depends_on:
       - postgres
+
+volumes:
+  traefik-config: {}
+  traefik-acme: {}
+  postgres_data: {}
+  n8n_data: {}
