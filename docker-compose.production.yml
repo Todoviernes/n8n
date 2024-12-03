@@ -14,8 +14,8 @@ services:
       - traefik-config:/etc/traefik
       - traefik-acme:/etc/traefik/acme
     environment:
-      - TRAEFIK_DOMAIN=${TRAEFIK_DOMAIN}
-      - TRAEFIK_EMAIL=${TRAEFIK_EMAIL}
+      TRAEFIK_DOMAIN: ${TRAEFIK_DOMAIN}
+      TRAEFIK_EMAIL: ${TRAEFIK_EMAIL}
     restart: always
 
   postgres:

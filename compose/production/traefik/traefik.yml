@@ -1,29 +1,60 @@
+log:
+  level: INFO
+
 entryPoints:
   web:
+    # http
     address: ":80"
+    http:
+      # https://docs.traefik.io/routing/entrypoints/#entrypoint
+      redirections:
+        entryPoint:
+          to: websecure
+
   websecure:
+    # https
     address: ":443"
 
 certificatesResolvers:
   letsencrypt:
+    # https://docs.traefik.io/master/https/acme/#lets-encrypt
     acme:
-      email: ${TRAEFIK_EMAIL}
+      email: "sebastian@pari.mx"
       storage: /etc/traefik/acme/acme.json
+      # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
         entryPoint: web
 
 http:
   routers:
     n8n:
-      rule: "Host(`${TRAEFIK_DOMAIN}`)"
-      service: n8n
+      rule: "Host(`n8n.pari.mx`)"
       entryPoints:
         - websecure
+      service: n8n
       tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
-
   services:
     n8n:
       loadBalancer:
         servers:
-          - url: "http://n8n:5678"
+          - url: http://n8n:5678
+
+  middlewares:
+    n8n:
+      headers:
+        SSLRedirect: true
+        STSSeconds: 315360000
+        browserXSSFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        SSLHost: "n8n.pari.mx"
+        STSIncludeSubdomains: true
+        STSPreload: true
+
+providers:
+  # https://docs.traefik.io/master/providers/file/
+  file:
+    filename: /etc/traefik/traefik.yml
+    watch: true
