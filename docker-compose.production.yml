@@ -44,6 +44,8 @@ services:
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_HOST: ${TRAEFIK_DOMAIN}
+      WEBHOOK_TUNNEL_URL: https://${TRAEFIK_DOMAIN}
     volumes:
       - n8n_data:/home/node/.n8n
     restart: always

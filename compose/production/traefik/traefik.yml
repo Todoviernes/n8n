@@ -1,13 +1,21 @@
+log:
+  level: INFO
+
 entryPoints:
   web:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+
   websecure:
     address: ":443"
 
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: ${TRAEFIK_EMAIL}
+      email: "${TRAEFIK_EMAIL}"
       storage: /etc/traefik/acme/acme.json
       httpChallenge:
         entryPoint: web
@@ -16,9 +24,9 @@ http:
   routers:
     n8n:
       rule: "Host(`${TRAEFIK_DOMAIN}`)"
-      service: n8n
       entryPoints:
         - websecure
+      service: n8n
       tls:
         certResolver: letsencrypt
 
@@ -27,3 +35,20 @@ http:
       loadBalancer:
         servers:
           - url: "http://n8n:5678"
+
+  middlewares:
+    n8n:
+      headers:
+        SSLRedirect: true
+        STSSeconds: 315360000
+        browserXSSFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        SSLHost: "${TRAEFIK_DOMAIN}"
+        STSIncludeSubdomains: true
+        STSPreload: true
+
+providers:
+  file:
+    filename: /etc/traefik/traefik.yml
+    watch: true
