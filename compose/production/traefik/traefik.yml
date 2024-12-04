@@ -5,6 +5,7 @@ entryPoints:
       redirections:
         entryPoint:
           to: websecure
+          scheme: https
 
   websecure:
     address: ":443"
@@ -32,18 +33,6 @@ http:
       loadBalancer:
         servers:
           - url: "http://n8n:5678"
-
-  middlewares:
-    n8n:
-      headers:
-        SSLRedirect: true
-        STSSeconds: 315360000
-        browserXSSFilter: true
-        contentTypeNosniff: true
-        forceSTSHeader: true
-        SSLHost: "${TRAEFIK_DOMAIN}"
-        STSIncludeSubdomains: true
-        STSPreload: true
 
 providers:
   file:
