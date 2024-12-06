@@ -4,13 +4,14 @@ FROM n8nio/n8n:latest
 # Switch to root user for administrative tasks
 USER root
 
-# Create a non-root user and ensure proper permissions for the `.n8n` folder
+# Create non-root user and set up permissions
 RUN apk add --no-cache shadow && \
     groupadd -r n8n && \
     useradd -r -g n8n -d /home/node -s /sbin/nologin n8n && \
-    mkdir -p /home/node/.n8n && \
+    mkdir -p /home/node/.n8n /home/node/.cache && \
     touch /home/node/.n8n/config && \
-    chown -R n8n:n8n /home/node/.n8n && \
+    chown -R n8n:n8n /home/node/.n8n /home/node/.cache && \
+    chmod 700 /home/node/.n8n && \
     chmod 600 /home/node/.n8n/config && \
     apk del shadow
 

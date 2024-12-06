@@ -45,6 +45,7 @@ services:
       N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
     volumes:
       - n8n_data:/home/node/.n8n
+      - n8n_cache:/home/node/.cache
     restart: always
     depends_on:
       - postgres
@@ -60,3 +61,4 @@ volumes:
   traefik-acme: {}
   postgres_data: {}
   n8n_data: {}
+  n8n_cache: {}
