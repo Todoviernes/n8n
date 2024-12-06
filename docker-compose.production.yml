@@ -47,7 +47,7 @@ services:
       N8N_HOST: ${TRAEFIK_DOMAIN}
       WEBHOOK_TUNNEL_URL: https://${TRAEFIK_DOMAIN}
     volumes:
-      - ./n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     restart: always
     depends_on:
       - postgres
