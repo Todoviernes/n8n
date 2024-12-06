@@ -8,8 +8,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - n8n_traefik-config:/etc/traefik
-      - n8n_traefik-acme:/etc/traefik/acme
+      - traefik-config:/etc/traefik
+      - traefik-acme:/etc/traefik/acme
     environment:
       TRAEFIK_DOMAIN: ${TRAEFIK_DOMAIN}
       TRAEFIK_EMAIL: ${TRAEFIK_EMAIL}
@@ -56,8 +56,12 @@ services:
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
 
 volumes:
-  traefik-config: {}
-  traefik-acme: {}
+  traefik-config:
+    external: true
+    name: n8n_traefik-config
+  traefik-acme:
+    external: true
+    name: n8n_traefik-acme
   postgres_data: {}
   n8n_data: {}
   n8n_cache: {}
