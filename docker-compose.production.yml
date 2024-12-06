@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   traefik:
-    build:
-      context: .
-      dockerfile: ./compose/production/traefik/Dockerfile
+    image: traefik:v3.1.6
     container_name: traefik
     ports:
       - "80:80"
@@ -17,6 +15,11 @@ services:
       - TRAEFIK_DOMAIN=${TRAEFIK_DOMAIN}
       - TRAEFIK_EMAIL=${TRAEFIK_EMAIL}
     restart: always
+    command:
+      - "--providers.file.filename=/etc/traefik/traefik.yml"
+      - "--log.level=DEBUG"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web-secure.address=:443"
 
   postgres:
     image: postgres:latest
@@ -33,11 +36,11 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     environment:
-      DB_TYPE: ${DB_TYPE}
-      DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST}
-      DB_POSTGRESDB_DATABASE: ${DB_POSTGRESDB_DATABASE}
-      DB_POSTGRESDB_USER: ${DB_POSTGRESDB_USER}
-      DB_POSTGRESDB_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
       GENERIC_TIMEZONE: ${GENERIC_TIMEZONE}
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
