@@ -8,6 +8,7 @@ entryPoints:
       redirections:
         entryPoint:
           to: web-secure
+          scheme: https
 
   web-secure:
     address: ":443"
