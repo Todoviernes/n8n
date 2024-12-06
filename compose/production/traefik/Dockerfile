@@ -1,3 +1,4 @@
+# Base image for Traefik
 FROM traefik:v3.1.6
 
 # Create necessary directories and files for ACME
@@ -7,3 +8,12 @@ RUN mkdir -p /etc/traefik/acme && \
 
 # Copy the Traefik configuration file
 COPY ./compose/production/traefik/traefik.yml /etc/traefik/traefik.yml
+
+# Set the working directory
+WORKDIR /etc/traefik
+
+# Expose ports for Traefik
+EXPOSE 80 443
+
+# Command to start Traefik
+ENTRYPOINT ["traefik"]
