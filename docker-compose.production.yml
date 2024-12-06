@@ -42,6 +42,8 @@ services:
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
       N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_LOG_LEVEL: "debug"
+      WEBHOOK_URL: "https://automations.smk.agency/"
     volumes:
       - n8n_data:/home/node/.n8n
       - n8n_cache:/home/node/.cache
