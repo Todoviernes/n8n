@@ -5,7 +5,7 @@ services:
     image: traefik:v3.1.6
     container_name: traefik
     ports:
-      - "5678:80"
+      - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
