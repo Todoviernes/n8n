@@ -19,7 +19,7 @@ certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
     acme:
-      email: "sebastian@pari.mx"
+      email: "vallejo@smk.com.co"
       storage: /etc/traefik/acme/acme.json
       # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
@@ -28,7 +28,7 @@ certificatesResolvers:
 http:
   routers:
     n8n:
-      rule: "Host(`n8n.pari.mx`)"
+      rule: "Host(`automations.smk.agency`)"
       entryPoints:
         - websecure
       service: n8n
