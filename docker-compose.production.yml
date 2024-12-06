@@ -8,9 +8,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - traefik-config:/etc/traefik
-      - traefik-acme:/etc/traefik/acme
+      - n8n_traefik-config:/etc/traefik
+      - n8n_traefik-acme:/etc/traefik/acme
     environment:
       TRAEFIK_DOMAIN: ${TRAEFIK_DOMAIN}
       TRAEFIK_EMAIL: ${TRAEFIK_EMAIL}
