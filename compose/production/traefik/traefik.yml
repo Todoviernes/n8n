@@ -16,15 +16,15 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: "${TRAEFIK_EMAIL}"
+      email: "vallejo@smk.com.co"
       storage: /etc/traefik/acme/acme.json
       httpChallenge:
         entryPoint: web
 
 http:
   routers:
-    web-secure-router:
-      rule: "Host(`${TRAEFIK_DOMAIN}`)"
+    n8n:
+      rule: "Host(`automations.smk.agency`)"
       entryPoints:
         - web-secure
       service: n8n
