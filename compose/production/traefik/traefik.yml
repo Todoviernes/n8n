@@ -3,7 +3,7 @@ log:
 
 entryPoints:
   web:
-    address: "80:5678"
+    address: ":80"
     http:
       redirections:
         entryPoint:

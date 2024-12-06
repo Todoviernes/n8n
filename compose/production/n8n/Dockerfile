@@ -9,8 +9,9 @@ RUN apk add --no-cache shadow && \
     groupadd -r n8n && \
     useradd -r -g n8n -d /home/node -s /sbin/nologin n8n && \
     mkdir -p /home/node/.n8n && \
+    touch /home/node/.n8n/config && \
     chown -R n8n:n8n /home/node/.n8n && \
-    chmod -R 770 /home/node/.n8n && \
+    chmod 600 /home/node/.n8n/config && \
     apk del shadow
 
 # Switch to the non-root user
