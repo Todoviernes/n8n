@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   traefik:
     build:
@@ -28,18 +30,18 @@ services:
     restart: always
 
   n8n:
-    image: n8nio/n8n:latest
+    build:
+      context: .
+      dockerfile: ./compose/production/n8n/Dockerfile
     container_name: n8n
-    ports:
-      - "5678:5678"
     environment:
-      DB_TYPE: ${DB_TYPE}
-      DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST}
-      DB_POSTGRESDB_DATABASE: ${DB_POSTGRESDB_DATABASE}
-      DB_POSTGRESDB_USER: ${DB_POSTGRESDB_USER}
-      DB_POSTGRESDB_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
-      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE}
-      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
+      DB_TYPE: "postgresdb"
+      DB_POSTGRESDB_HOST: "postgres"
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      GENERIC_TIMEZONE: "America/Bogota"
+      N8N_BASIC_AUTH_ACTIVE: "true"
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
     volumes:
@@ -47,9 +49,15 @@ services:
     restart: always
     depends_on:
       - postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`automations.smk.agency`)"
+      - "traefik.http.routers.n8n.entrypoints=web-secure"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
 
 volumes:
-  traefik-config: {}
-  traefik-acme: {}
-  postgres_data: {}
-  n8n_data: {}
+  traefik-config:
+  traefik-acme:
+  postgres_data:
+  n8n_data:
