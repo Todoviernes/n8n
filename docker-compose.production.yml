@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   traefik:
     build:
@@ -8,6 +10,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - traefik-config:/etc/traefik
       - traefik-acme:/etc/traefik/acme
     environment:
@@ -27,26 +30,22 @@ services:
     restart: always
 
   n8n:
-    build:
-      context: .
-      dockerfile: ./compose/production/n8n/Dockerfile
+    image: n8nio/n8n:latest
     container_name: n8n
     environment:
-      DB_TYPE: "postgresdb"
-      DB_POSTGRESDB_HOST: "postgres"
-      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
-      DB_POSTGRESDB_USER: ${POSTGRES_USER}
-      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
-      GENERIC_TIMEZONE: "America/Bogota"
-      N8N_BASIC_AUTH_ACTIVE: "true"
+      DB_TYPE: ${DB_TYPE}
+      DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST}
+      DB_POSTGRESDB_DATABASE: ${DB_POSTGRESDB_DATABASE}
+      DB_POSTGRESDB_USER: ${DB_POSTGRESDB_USER}
+      DB_POSTGRESDB_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE}
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
-      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
-      N8N_LOG_LEVEL: "debug"
-      WEBHOOK_URL: "https://automations.smk.agency/"
+      N8N_HOST: ${TRAEFIK_DOMAIN}
+      WEBHOOK_TUNNEL_URL: https://${TRAEFIK_DOMAIN}
     volumes:
       - n8n_data:/home/node/.n8n
-      - n8n_cache:/home/node/.cache
     restart: always
     depends_on:
       - postgres
@@ -58,12 +57,7 @@ services:
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
 
 volumes:
-  traefik-config:
-    external: true
-    name: n8n_traefik-config
-  traefik-acme:
-    external: true
-    name: n8n_traefik-acme
+  traefik-config: {}
+  traefik-acme: {}
   postgres_data: {}
   n8n_data: {}
-  n8n_cache: {}
