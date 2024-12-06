@@ -49,7 +49,8 @@ services:
       - N8N_PROTOCOL=https
       - NODE_ENV=production
       - WEBHOOK_URL=https://automations.smk.agency/
-      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - GENERIC_TIMEZONE=America/Mexico_City
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true # Enforce stricter file permissions
     volumes:
       - n8n_data:/home/node/.n8n
 
