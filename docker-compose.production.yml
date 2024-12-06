@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  traefik:
-    build:
-      context: .
-      dockerfile: ./compose/production/traefik/Dockerfile
-    container_name: traefik
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - traefik-config:/etc/traefik
-      - traefik-acme:/etc/traefik/acme
-    environment:
-      TRAEFIK_DOMAIN: ${TRAEFIK_DOMAIN}
-      TRAEFIK_EMAIL: ${TRAEFIK_EMAIL}
-    restart: always
-
   postgres:
     image: postgres:latest
     container_name: n8n_postgres
@@ -32,8 +15,6 @@ services:
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
-    ports:
-      - "5678:5678"
     environment:
       DB_TYPE: ${DB_TYPE}
       DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST}
@@ -44,14 +25,40 @@ services:
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_PROTOCOL: https
+      N8N_HOST: ${DOMAIN}
+      N8N_PORT: 5678
     volumes:
       - n8n_data:/home/node/.n8n
     restart: always
     depends_on:
       - postgres
 
+  nginx:
+    image: nginx:latest
+    container_name: n8n_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/lib/letsencrypt
+    depends_on:
+      - n8n
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: n8n_certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/lib/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/lib/letsencrypt && sleep 12h & wait $!; done'"
+    restart: always
+
 volumes:
-  traefik-config: {}
-  traefik-acme: {}
-  postgres_data: {}
-  n8n_data: {}
+  postgres_data:
+  n8n_data:
+  certbot_conf:
+  certbot_www:

@@ -1,27 +1,23 @@
 log:
-  level: INFO
+  level: DEBUG
 
 entryPoints:
   web:
-    # http
-    address: ":80"
+    address: "80:5678"
     http:
-      # https://docs.traefik.io/routing/entrypoints/#entrypoint
       redirections:
         entryPoint:
-          to: websecure
+          to: web-secure
+          scheme: https
 
-  websecure:
-    # https
+  web-secure:
     address: ":443"
 
 certificatesResolvers:
   letsencrypt:
-    # https://docs.traefik.io/master/https/acme/#lets-encrypt
     acme:
       email: "vallejo@smk.com.co"
       storage: /etc/traefik/acme/acme.json
-      # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
         entryPoint: web
 
@@ -30,31 +26,18 @@ http:
     n8n:
       rule: "Host(`automations.smk.agency`)"
       entryPoints:
-        - websecure
+        - web-secure
       service: n8n
       tls:
-        # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
+
   services:
     n8n:
       loadBalancer:
         servers:
-          - url: http://n8n:5678
-
-  middlewares:
-    n8n:
-      headers:
-        SSLRedirect: true
-        STSSeconds: 315360000
-        browserXSSFilter: true
-        contentTypeNosniff: true
-        forceSTSHeader: true
-        SSLHost: "n8n.pari.mx"
-        STSIncludeSubdomains: true
-        STSPreload: true
+          - url: "http://n8n:5678"
 
 providers:
-  # https://docs.traefik.io/master/providers/file/
   file:
     filename: /etc/traefik/traefik.yml
     watch: true
