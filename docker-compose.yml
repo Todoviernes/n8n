@@ -5,9 +5,9 @@ services:
     image: postgres:latest
     container_name: n8n_postgres
     environment:
-      POSTGRES_USER: n8n_user
-      POSTGRES_PASSWORD: n8n_password
-      POSTGRES_DB: n8n_db
+      POSTGRES_USER: ${DB_POSTGRESDB_USER}
+      POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
+      POSTGRES_DB: ${DB_POSTGRESDB_DATABASE}
     volumes:
       - ./postgres_data:/var/lib/postgresql/data  # Local folder for Postgres data
     restart: always
@@ -15,6 +15,8 @@ services:
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
+    ports:
+      - "5678:5678"
     environment:
       DB_TYPE: ${DB_TYPE}
       DB_POSTGRESDB_HOST: ${DB_POSTGRESDB_HOST}
@@ -25,10 +27,13 @@ services:
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
-      N8N_HOST: ${TRAEFIK_DOMAIN}
-      WEBHOOK_TUNNEL_URL: https://${TRAEFIK_DOMAIN}
     volumes:
-      - n8n_data:/home/node/.n8n
+      - ./n8n_data:/home/node/.n8n
     restart: always
     depends_on:
       - postgres
+
+
+volumes:
+  postgres_data: {}
+  n8n_data: {}
