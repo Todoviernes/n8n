@@ -1,17 +1,20 @@
-# Start with the official n8n image
+# Use the official n8n image as the base
 FROM n8nio/n8n:latest
 
-# Set working directory
-WORKDIR /home/node
+# Switch to root user to perform administrative tasks
+USER root
 
-# Create a non-root user for security
-RUN addgroup --system n8n \
-    && adduser --system --ingroup n8n n8n \
-    && mkdir -p /home/node/.n8n \
-    && chown -R n8n:n8n /home/node/.n8n
+# Create a non-root user and group for n8n
+RUN groupadd -r n8n && \
+    useradd -r -g n8n -d /home/node -s /sbin/nologin n8n && \
+    mkdir -p /home/node/.n8n && \
+    chown -R n8n:n8n /home/node/.n8n
 
 # Switch to the non-root user
 USER n8n
+
+# Set the working directory
+WORKDIR /home/node
 
 # Expose the default n8n port
 EXPOSE 5678
