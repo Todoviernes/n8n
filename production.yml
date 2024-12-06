@@ -16,7 +16,7 @@ services:
       - TRAEFIK_CERTIFICATESRESOLVERS_LETS_ENCRYPT_ACME_EMAIL=${EMAIL}
 
   postgres:
-    image: postgres:16
+    image: postgres:latest
     container_name: n8n_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -65,8 +65,8 @@ services:
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
 
 volumes:
-  postgres_data:
-  n8n_data:
+  postgres_data: {}
+  n8n_data: {}
 
 networks:
   default:
