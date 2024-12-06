@@ -1,9 +1,14 @@
 global:
-  checkNewVersion: true
+  checkNewVersion: false
   sendAnonymousUsage: false
 
 log:
   level: INFO
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: n8n-network
 
 entryPoints:
   web:
@@ -16,14 +21,11 @@ entryPoints:
 
   websecure:
     address: :443
-    http:
-      tls:
-        certResolver: lets-encrypt
 
 certificatesResolvers:
   lets-encrypt:
     acme:
-      email: vallejo@smk.com.co
+      email: ${EMAIL}
       storage: /acme.json
       caServer: https://acme-v02.api.letsencrypt.org/directory
       httpChallenge:
