@@ -1,0 +1,43 @@
+#!/bin/bash
+# Nightly online backup of the n8n SQLite database (+ encryption key) without stopping n8n.
+# Runs SQLite's backup API inside a throwaway container from the same image n8n is running,
+# as the same uid, so file ownership in the n8n_data volume never changes.
+set -euo pipefail
+
+BACKUP_DIR=/home/ec2-user/n8n-backups/daily
+KEEP_DAYS=14
+CONTAINER=n8n-n8n-1
+
+mkdir -p "$BACKUP_DIR"
+IMAGE=$(docker inspect -f '{{.Config.Image}}' "$CONTAINER")
+STAMP=$(date +%Y%m%d-%H%M%S)
+OUT="n8n-$STAMP"
+
+docker run --rm --network none --user node --entrypoint node \
+  -v n8n_data:/data -v "$BACKUP_DIR":/backup \
+  -e OUT="$OUT" "$IMAGE" -e '
+const { DatabaseSync, backup } = require("node:sqlite");
+const fs = require("node:fs"), zlib = require("node:zlib");
+const { pipeline } = require("node:stream/promises");
+(async () => {
+  const tmp = `/backup/.${process.env.OUT}.sqlite`;
+  const src = new DatabaseSync("/data/database.sqlite", { readOnly: true });
+  await backup(src, tmp);
+  src.close();
+  const db = new DatabaseSync(tmp);
+  db.exec("PRAGMA journal_mode=DELETE"); // copy inherits WAL; fold it into one self-contained file
+  const check = db.prepare("PRAGMA quick_check").get();
+  const wf = db.prepare("SELECT count(*) AS n FROM workflow_entity").get().n;
+  const cred = db.prepare("SELECT count(*) AS n FROM credentials_entity").get().n;
+  db.close();
+  if (Object.values(check)[0] !== "ok") throw new Error("quick_check failed: " + JSON.stringify(check));
+  await pipeline(fs.createReadStream(tmp), zlib.createGzip(), fs.createWriteStream(`/backup/${process.env.OUT}.sqlite.gz`));
+  fs.unlinkSync(tmp);
+  fs.copyFileSync("/data/config", `/backup/${process.env.OUT}.config`);
+  console.log(`ok workflows=${wf} credentials=${cred}`);
+})().catch(e => { console.error(e); process.exit(1); });
+'
+
+chmod 600 "$BACKUP_DIR/$OUT.config" "$BACKUP_DIR/$OUT.sqlite.gz"
+find "$BACKUP_DIR" -maxdepth 1 -name 'n8n-*' -mtime +"$KEEP_DAYS" -delete
+echo "backup written: $BACKUP_DIR/$OUT.sqlite.gz ($(du -h "$BACKUP_DIR/$OUT.sqlite.gz" | cut -f1))"

@@ -83,8 +83,8 @@ Welcome to the **TodoViernes n8n Integration** repository! This project allows y
 
 ## Data Persistence
 
-- **PostgreSQL Data**: Stored in `./postgres_data`. Ensure this directory is backed up regularly.
-- **n8n Data**: Stored in `./n8n_data`. This directory contains your workflows, credentials, and other configurations.
+- **Production** stores everything in SQLite inside the external `n8n_data` Docker volume: `database.sqlite`, plus `config`, the encryption key for stored credentials. It's backed up nightly, without stopping n8n. See [deploy/backup](deploy/backup/README.md) for setup and restore.
+- **Local development** (`docker-compose.yml`) uses PostgreSQL in `./postgres_data` and the `n8n_data` named volume.
 
 ---
 
