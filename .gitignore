@@ -1,3 +1,6 @@
 .env
 n8n_data
 postgres_data
+# Server-only: Let's Encrypt private keys and workflow exports
+compose/production/traefik/acme/
+exported-workflows.json
